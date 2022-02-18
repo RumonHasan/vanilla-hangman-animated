@@ -4,10 +4,61 @@ const alertContainerElement = document.querySelector('[data-alertContainer]');
 const startButton = document.querySelector('[data-start]');
 const loaderElement = document.querySelector('[data-load]');
 const loader = document.querySelector('[data-loading]');
+const wrongContainerElement = document.querySelector('[data-wrongContainer]');
 
 // word list
-const wordList = ['SCIENCE'];
-
+const wordList = [
+    "a" ,
+    "aa" ,
+    "aah" ,
+    "aahed" ,
+    "aahing" ,
+    "aahs" ,
+    "aal" ,
+    "aalii" ,
+    "aaliis" ,
+    "aals" ,
+    "aardvark" ,
+    "aardvarks" ,
+    "aardwolf" ,
+    "aardwolves" ,
+    "aargh" ,
+    "aarrgh" ,
+    "aarrghh" ,
+    "aarti" ,
+    "aartis" ,
+    "aas" ,
+    "aasvogel" ,
+    "aasvogels" ,
+    "ab" ,
+    "aba" ,
+    "abac" ,
+    "abaca" ,
+    "abacas" ,
+    "abaci" ,
+    "aback" ,
+    "abacs" ,
+    "abacterial" ,
+    "abactinal" ,
+    "abactinally" ,
+    "abactor" ,
+    "abactors" ,
+    "abacus" ,
+    "abacuses" ,
+    "abaft" ,
+    "abaka" ,
+    "abakas" ,
+    "abalone" ,
+    "abalones" ,
+    "abamp" ,
+    "abampere" ,
+    "abamperes" ,
+    "abamps" ,
+    "aband" ,
+    "abandoned" ,
+    "abanding" ,
+    "abandon" 
+]
 // key list
 const keys = [
     'Q',
@@ -45,6 +96,7 @@ const ENTER_KEY = 'ENTER';
 let checkGameOver = false;
 let correctLetters = [];
 let wrongLetters = [];
+let lifeTitle = ['H', 'A', 'N', 'G', 'M', 'A', 'N'];
 
 // random word generator 
 const generateRandomWordIndex = ()=>{
@@ -53,22 +105,34 @@ const generateRandomWordIndex = ()=>{
 let randomWord = wordList[generateRandomWordIndex()];
 
 // keyboard construction
-keys.forEach((key, keyIndex)=>{
-    const buttonElement = document.createElement('button');
-    buttonElement.textContent = key;
-    buttonElement.setAttribute('id', key);
-    buttonElement.addEventListener('click', ()=> handleKeyClicks(key));
-    keyboardContainerElement.append(buttonElement);
-});
+const keyboardDisplay = ()=>{
+    keys.forEach((key, keyIndex)=>{
+        const buttonElement = document.createElement('button');
+        buttonElement.textContent = key;
+        buttonElement.setAttribute('id', key);
+        buttonElement.addEventListener('click', ()=> handleKeyClicks(key));
+        keyboardContainerElement.append(buttonElement);
+    });
+}
+// primary event listener
+startButton.addEventListener('click', gameStart, {once:true});
 
-startButton.addEventListener('click', handleWordSetup, {once:true});
+function gameStart(){
+    handleWordSetup();
+    keyboardDisplay();
+    showTitle();
+}
+
+const showTitle = ()=>{
+  
+}
 
 // generate word tiles
 function handleWordSetup(){
         loaderElement.classList.remove('hide');
         setCustomProperty(loaderElement, '--load-container-width', Math.floor(randomWord.length * 10));
         startButton.classList.add('hide');
-        clearTiles();
+        clearTiles(wordContainerElement);
         randomWord.split('').forEach((letter, letterIndex)=>{
             const letterRowElement = document.createElement('div');
             letterRowElement.classList.add('letter-tile');
@@ -82,6 +146,15 @@ function handleWordSetup(){
         })
 };
 
+const displayWrongLetters = ()=>{
+    clearTiles(wrongContainerElement);
+    wrongLetters?.forEach((singleWrongLetter)=>{
+        const wrongTileElement = document.createElement('div');
+        wrongTileElement.classList.add('wrong-tile');
+        wrongTileElement.textContent = singleWrongLetter;
+        wrongContainerElement.append(wrongTileElement);
+    })
+};
 
 // handling letter keys
 const handleKeyClicks = (letter)=>{
@@ -95,6 +168,7 @@ const checkLetter = (letter)=>{ // adds it independently to the dom;
         handleWordSetup();
         flipLetterTile();
         increaseLoader();
+        
     }else{
         showMessage('Letter is already chosen');
     }
@@ -102,6 +176,8 @@ const checkLetter = (letter)=>{ // adds it independently to the dom;
       if(!wrongLetters.includes(letter)){
           wrongLetters.push(letter);
           showMessage('You loose one life');
+          console.log(wrongLetters);
+          displayWrongLetters();
       }else{
           showMessage('Wrong Letter is already present');
       }
@@ -112,6 +188,7 @@ const checkLetter = (letter)=>{ // adds it independently to the dom;
 const showMessage = (message)=>{
     const messsageElement = document.createElement('div');
     messsageElement.textContent = message;
+    messsageElement.classList.add('alert-message');
     alertContainerElement.appendChild(messsageElement);
     setTimeout(()=>{
         alertContainerElement.removeChild(messsageElement);
@@ -119,9 +196,9 @@ const showMessage = (message)=>{
 }
 
 // clears all the tiles before redisplaying the letter tiles
-const clearTiles = ()=>{
-    while(wordContainerElement.firstChild){
-        wordContainerElement.removeChild(wordContainerElement.firstChild);
+const clearTiles = (elementContainer)=>{
+    while(elementContainer.firstChild){
+        elementContainer.removeChild(elementContainer.firstChild);
     }
 }
 
