@@ -5,6 +5,7 @@ const startButton = document.querySelector('[data-start]');
 const loaderElement = document.querySelector('[data-load]');
 const loader = document.querySelector('[data-loading]');
 const wrongContainerElement = document.querySelector('[data-wrongContainer]');
+const titleElement = document.querySelector('[data-title]');
 
 // word list
 const wordList = [
@@ -97,12 +98,13 @@ let checkGameOver = false;
 let correctLetters = [];
 let wrongLetters = [];
 let lifeTitle = ['H', 'A', 'N', 'G', 'M', 'A', 'N'];
+let currentLifeTile = lifeTitle.length - 1;
 
 // random word generator 
 const generateRandomWordIndex = ()=>{
     return Math.floor(Math.random() * wordList.length);
 };
-let randomWord = wordList[generateRandomWordIndex()];
+let randomWord = wordList[generateRandomWordIndex()].toUpperCase();
 
 // keyboard construction
 const keyboardDisplay = ()=>{
@@ -117,6 +119,7 @@ const keyboardDisplay = ()=>{
 // primary event listener
 startButton.addEventListener('click', gameStart, {once:true});
 
+// main function to start the initial game setup
 function gameStart(){
     handleWordSetup();
     keyboardDisplay();
@@ -124,7 +127,15 @@ function gameStart(){
 }
 
 const showTitle = ()=>{
-  
+    lifeTitle.forEach((titleLetter, index)=>{
+        setTimeout(()=>{
+            const titleLetterElement = document.createElement('div');
+            titleLetterElement.textContent = titleLetter;
+            titleLetterElement.classList.add('title-letter');
+            titleLetterElement.setAttribute('id', 'title-'+index);
+            titleElement.append(titleLetterElement);
+        }, 200 * index);
+    })
 }
 
 // generate word tiles
@@ -156,11 +167,25 @@ const displayWrongLetters = ()=>{
     })
 };
 
+const removeLifeLetter = ()=>{
+    if(currentLifeTile === 0){
+        checkGameOver = true;
+        showMessage('Game over!');
+        return;
+    }
+    if(currentLifeTile > -1){
+        const titleNode = document.getElementById('title-' + currentLifeTile);
+        titleNode.textContent = '';
+        currentLifeTile--;
+    }
+}
+
 // handling letter keys
 const handleKeyClicks = (letter)=>{
     checkLetter(letter);
 }
 
+// main function to check whether letter is wrong or right
 const checkLetter = (letter)=>{ // adds it independently to the dom;
   if(randomWord.includes(letter)){
     if(!correctLetters.includes(letter)){
@@ -178,6 +203,7 @@ const checkLetter = (letter)=>{ // adds it independently to the dom;
           showMessage('You loose one life');
           console.log(wrongLetters);
           displayWrongLetters();
+          removeLifeLetter();
       }else{
           showMessage('Wrong Letter is already present');
       }

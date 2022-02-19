@@ -64,6 +64,13 @@ body {
 
 .title {
   color: white;
+  display: flex;
+}
+
+.title-letter {
+  font-size: 30px;
+  margin: 1px;
+  font-weight: bold;
 }
 
 .title-container {
