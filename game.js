@@ -6,6 +6,7 @@ const loaderElement = document.querySelector('[data-load]');
 const loader = document.querySelector('[data-loading]');
 const wrongContainerElement = document.querySelector('[data-wrongContainer]');
 const titleElement = document.querySelector('[data-title]');
+const restartButtonElement = document.querySelector('[data-restart]');
 
 // word list
 const wordList = [
@@ -105,6 +106,8 @@ const generateRandomWordIndex = ()=>{
     return Math.floor(Math.random() * wordList.length);
 };
 let randomWord = wordList[generateRandomWordIndex()].toUpperCase();
+const MAX_LOAD_NUMBER = Math.floor(randomWord.length * 10);
+console.log(randomWord);
 
 // keyboard construction
 const keyboardDisplay = ()=>{
@@ -121,9 +124,27 @@ startButton.addEventListener('click', gameStart, {once:true});
 
 // main function to start the initial game setup
 function gameStart(){
+    wordContainerElement.classList.remove('hide');
+    keyboardContainerElement.classList.remove('hide');
+    titleElement.classList.remove('hide');
+    loaderElement.classList.remove('hide');
+    startButton.classList.add('hide');
+    restartButtonElement.classList.add('hide');
     handleWordSetup();
     keyboardDisplay();
     showTitle();
+};
+
+function checkGameLose(){
+    checkGameOver = true;
+    if(checkGameOver){
+        window.location = '/';
+        wordContainerElement.classList.add('hide');
+        keyboardContainerElement.classList.add('hide');
+        titleElement.classList.remove('hide');
+        loaderElement.classList.add('hide');
+        startButton.classList.add('hide');
+    }
 }
 
 const showTitle = ()=>{
@@ -140,9 +161,7 @@ const showTitle = ()=>{
 
 // generate word tiles
 function handleWordSetup(){
-        loaderElement.classList.remove('hide');
-        setCustomProperty(loaderElement, '--load-container-width', Math.floor(randomWord.length * 10));
-        startButton.classList.add('hide');
+        setCustomProperty(loaderElement, '--load-container-width', MAX_LOAD_NUMBER);
         clearTiles(wordContainerElement);
         randomWord.split('').forEach((letter, letterIndex)=>{
             const letterRowElement = document.createElement('div');
@@ -169,15 +188,23 @@ const displayWrongLetters = ()=>{
 
 const removeLifeLetter = ()=>{
     if(currentLifeTile === 0){
-        checkGameOver = true;
         showMessage('Game over!');
+        setTimeout(()=>{
+            checkGameLose();
+        }, 2500);
         return;
     }
-    if(currentLifeTile > -1){
+    if(currentLifeTile >= 0){
         const titleNode = document.getElementById('title-' + currentLifeTile);
         titleNode.textContent = '';
         currentLifeTile--;
     }
+};
+
+// final game over call when the player loses 
+const gameOverFinalCall = ()=>{
+    restartButtonElement.classList.remove('hide');
+    restartButtonElement.addEventListener('click', gameStart);
 }
 
 // handling letter keys
@@ -252,7 +279,11 @@ const increaseLoader = ()=>{
     const loaderWidth = getCustomProperty(loader, '--load-width');
     if(loaderWidth < 100){
         increaseCustomProperty(loader, '--load-width', loaderIncreaseRate);
+    };
+    if(loaderWidth >= MAX_LOAD_NUMBER){
+        alert('show me something please');
     }
+    console.log(MAX_LOAD_NUMBER, loaderIncreaseRate);
 };
 
 // custom property manager for element style control
